@@ -1,0 +1,651 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,Arial),sans-serif;font-size:13px;color:var(--color-text-primary,#1a1a1a);background:transparent}
+.hdr{padding:12px 16px 8px;border-bottom:0.5px solid var(--color-border-tertiary,#e0e0e0);display:flex;align-items:center;justify-content:space-between}
+.hdr h1{font-size:16px;font-weight:500}.hdr p{font-size:11px;color:var(--color-text-secondary,#666);margin-top:2px}
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary,#e0e0e0);padding:0 12px;background:var(--color-background-primary,#fff);position:sticky;top:0;z-index:20;overflow-x:auto}
+.tab{padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;color:var(--color-text-secondary,#666);white-space:nowrap;user-select:none}
+.tab.active{border-bottom-color:#3C3489;color:#3C3489;font-weight:500}
+.sec{display:none;padding:12px 16px}.sec.active{display:block}
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.mc{background:var(--color-background-secondary,#f5f5f5);border-radius:8px;padding:10px 12px}
+.mc .lbl{font-size:10px;color:var(--color-text-secondary,#666);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.mc .val{font-size:20px;font-weight:500}
+.mc .sub{font-size:10px;color:var(--color-text-secondary,#666);margin-top:1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.card{border:0.5px solid var(--color-border-tertiary,#e0e0e0);border-radius:8px;padding:12px}
+.card h3{font-size:12px;font-weight:500;color:var(--color-text-secondary,#666);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
+.bar-row{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.bar-lbl{font-size:11px;width:110px;text-align:right;flex-shrink:0;color:var(--color-text-primary,#1a1a1a);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-wrap{flex:1;background:var(--color-background-secondary,#f0f0f0);border-radius:3px;height:16px;overflow:hidden}
+.bar-fill{height:16px;border-radius:3px;transition:width .3s}
+.bar-num{font-size:11px;width:30px;flex-shrink:0;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{font-size:10px;font-weight:500;text-align:left;padding:5px 8px;color:var(--color-text-secondary,#666);border-bottom:0.5px solid var(--color-border-tertiary,#e0e0e0);background:var(--color-background-secondary,#f5f5f5);white-space:nowrap}
+td{padding:5px 8px;border-bottom:0.5px solid var(--color-border-tertiary,#e0e0e0);vertical-align:middle}
+tr:hover td{background:var(--color-background-secondary,#f9f9f9)}
+.tag{display:inline-block;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:500;white-space:nowrap}
+.t-hofs{background:#E6F1FB;color:#0C447C}.t-hoips{background:#EEEDFE;color:#3C3489}
+.t-sud{background:#FAEEDA;color:#633806}.t-sanc{background:#EAF3DE;color:#27500A}
+.t-disb{background:#E1F5EE;color:#085041}.t-b3p{background:#F1EFE8;color:#2C2C2A}
+.t-ll{background:#FCEBEB;color:#A32D2D}.t-unk{background:#F1EFE8;color:#5F5E5A}
+.t-pb{background:#FAECE7;color:#993C1D}.t-ph{background:#EEEDFE;color:#3C3489}
+.t-cl{background:#EAF3DE;color:#27500A}.t-rej{background:#FCEBEB;color:#A32D2D}
+.frow{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.frow select,.frow input{font-size:11px;padding:4px 7px;border-radius:5px;border:0.5px solid var(--color-border-secondary,#ccc);background:var(--color-background-primary,#fff);color:var(--color-text-primary,#1a1a1a)}
+.frow button{font-size:11px;padding:4px 10px;border-radius:5px;border:0.5px solid var(--color-border-secondary,#ccc);background:var(--color-background-primary,#fff);color:var(--color-text-primary,#1a1a1a);cursor:pointer}
+.add-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:10px;color:var(--color-text-secondary,#666);font-weight:500}
+.fg input,.fg select{padding:5px 8px;border-radius:5px;border:0.5px solid var(--color-border-secondary,#ccc);background:var(--color-background-primary,#fff);color:var(--color-text-primary,#1a1a1a);font-size:12px}
+.btn{padding:6px 14px;border-radius:5px;border:0.5px solid var(--color-border-secondary,#ccc);background:var(--color-background-primary,#fff);color:var(--color-text-primary,#1a1a1a);font-size:12px;cursor:pointer;font-weight:500}
+.btn.pri{background:#3C3489;color:#fff;border-color:#3C3489}
+.tat-done{color:#27500A;font-weight:500}.tat-on{color:#3B6D11}.tat-watch{color:#854F0B;font-weight:500}.tat-over{color:#A32D2D;font-weight:500}
+.donut-wrap{display:flex;gap:12px;align-items:center;margin-top:4px}
+.legend{display:flex;flex-direction:column;gap:5px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--color-background-primary,#fff);border-radius:10px;padding:16px;width:340px;border:0.5px solid var(--color-border-secondary,#ccc)}
+.modal h2{font-size:14px;font-weight:500;margin-bottom:12px}
+.modal .fg{margin-bottom:8px}
+.modal-acts{display:flex;gap:6px;justify-content:flex-end;margin-top:10px}
+.ovr{color:#A32D2D}.watch{color:#854F0B}.ok{color:#27500A}
+</style>
+</head>
+<body>
+
+<h2 style="position:absolute;left:-9999px">GIC Housing Finance Credit Ops Dashboard — 167 files, pipeline stages, PO/SO analytics</h2>
+
+<div class="hdr">
+  <div><h1>GIC Housing Finance · Hub Credit Ops</h1><p id="hdr-sub">Loading...</p></div>
+  <div style="font-size:11px;color:var(--color-text-secondary,#666)" id="last-upd"></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="sw('dash')">Dashboard</div>
+  <div class="tab" onclick="sw('pipeline')">Pipeline</div>
+  <div class="tab" onclick="sw('po')">PO analytics</div>
+  <div class="tab" onclick="sw('so')">SO analytics</div>
+  <div class="tab" onclick="sw('branch')">Branch analytics</div>
+  <div class="tab" onclick="sw('files')">All files</div>
+  <div class="tab" onclick="sw('add')">+ Add file</div>
+</div>
+
+<div id="s-dash" class="sec active"></div>
+<div id="s-pipeline" class="sec"></div>
+<div id="s-po" class="sec"></div>
+<div id="s-so" class="sec"></div>
+<div id="s-branch" class="sec"></div>
+<div id="s-files" class="sec"></div>
+<div id="s-add" class="sec"></div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Update file</h2>
+    <div class="fg"><label>Current Stage</label>
+      <select id="m-stage"><option>HO FS</option><option>HO IPS</option><option>Put up to HO SO FS</option><option>SUD</option><option>Disbursed</option><option>Sanctioned</option><option>Branch 3rd Party</option><option>Lost Lead</option><option>Rejected</option></select>
+    </div>
+    <div class="fg"><label>Query Status</label>
+      <select id="m-query"><option>Clear</option><option>Pending with Branch</option><option>Pending with HO</option><option>Sanctioned</option><option>Rejected</option><option>PUT UP FOR SANCTION</option></select>
+    </div>
+    <div class="fg"><label>PO Name</label><select id="m-po"></select></div>
+    <div class="fg"><label>SO Name</label><select id="m-so"></select></div>
+    <div class="modal-acts">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn pri" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TODAY = new Date('2026-06-20');
+
+function parseDate(s){
+  if(!s||s==='')return null;
+  if(typeof s==='number'){return new Date((s-25569)*86400000);}
+  s=String(s).trim();
+  if(s==='46361'){return new Date('2026-11-26');}
+  let m;
+  m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/);
+  if(m){let y=m[3].length===2?'20'+m[3]:m[3];return new Date(y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'));}
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){return new Date(m[3]+'-'+m[1].padStart(2,'0')+'-'+m[2].padStart(2,'0'));}
+  try{let d=new Date(s);if(!isNaN(d))return d;}catch(e){}
+  return null;
+}
+
+function daysSince(d){if(!d)return null;return Math.floor((TODAY-d)/86400000);}
+
+function normalizeStage(s){
+  if(!s||s.trim()==='')return'Unknown';
+  s=s.trim().toUpperCase();
+  if(s.includes('HO IPS')||s.includes('HOIPS'))return'HO IPS';
+  if(s.includes('HO FS'))return'HO FS';
+  if(s.includes('PUT UP TO HO SO'))return'Put up to HO SO FS';
+  if(s==='SUD')return'SUD';
+  if(s.includes('DISBURS'))return'Disbursed';
+  if(s.includes('SANCTION'))return'Sanctioned';
+  if(s.includes('BRANCH 3RD')||s.includes('B3P'))return'Branch 3rd Party';
+  if(s.includes('LOST'))return'Lost Lead';
+  if(s.includes('REJECT'))return'Rejected';
+  return s.charAt(0)+s.slice(1).toLowerCase();
+}
+
+function normalizeQuery(s){
+  if(!s||s.trim()==='')return'Not Set';
+  s=s.trim().toUpperCase();
+  if(s.includes('BRANCH'))return'Pending with Branch';
+  if(s.includes('HO')||s.includes('PENDING WITH H'))return'Pending with HO';
+  if(s.includes('SANCTION'))return'Sanctioned';
+  if(s.includes('REJECT'))return'Rejected';
+  if(s.includes('PUT UP FOR SANCTION'))return'PUT UP FOR SANCTION';
+  if(s==='CLEAR')return'Clear';
+  return s.charAt(0)+s.slice(1).toLowerCase();
+}
+
+function tatLabel(days){
+  if(days===null)return'-';
+  if(days<=7)return'On Track';
+  if(days<=15)return'Watch';
+  if(days<=30)return'Overdue';
+  return'Critical';
+}
+
+const RAW=[
+["1","6/5/2026","DL0660020000016","Moumita Roy",4400000,"Dwarka, Delhi","SUD","Sanctioned","AMIT DAHIYA","N RAGOTHAMAN"],
+["2","5/5/2026","DL0660020000006","Arvind Singh Jhoorawat",2500000,"Dwarka, Delhi","HO FS","Pending with HO","AMIT THAKUR","AMIT THAKUR"],
+["3","8/5/2026","DL0660200000014","Bed Prakash Tiwari",3000000,"Dwarka, Delhi","","Pending with Branch","SITA CHAURASIYA","DEEPAK KUMAR"],
+["4","12/5/2026","HR0510020000008","RISHABH DHAKAL",5500000,"Gurgaon","","Sanctioned","JAI AGGARWAL","LOHIT TATA"],
+["5","7/5/2026","HR0510020000020","ROSHAN KUMAR",6200000,"Gurgaon","","Sanctioned","AMIT DAHIYA","N RAGOTHAMAN"],
+["6","8/5/2026","HR0510020000004","NEERAJ KUMAR",4000000,"Gurgaon","HO FS","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["7","10/5/2026","HR05100200000026","YOGESH SINGH ADHIKARI",3500000,"Gurgaon","HO FS","Sanctioned","SITA CHAURASIYA","AMIT THAKUR"],
+["8","11/5/2026","HR05100200000024","NARESH SHARMA",3500000,"Gurgaon","SUD","Sanctioned","JAI AGGARWAL","AMIT THAKUR"],
+["9","26/5/2026","HR0510020000022","SHWETA MITTAL",5600000,"Gurgaon","HO FS","Sanctioned","AMIT THAKUR","LOHIT TATA"],
+["10","15/5/2026","HR0510020000009","ROPANGI GUSAIN",3900000,"Gurgaon","SUD","Sanctioned","ADIL GARG","LOHIT TATA"],
+["11","8/5/2026","DL0110020000003","Shilpi Bajaj",7000000,"Delhi","SUD","Sanctioned","AMIT THAKUR","LOHIT TATA"],
+["12","24/4/2026","UP0620020000007","Shantanu Varshney",3200000,"Ghaziabad","HO FS","Sanctioned","HIMANSHI HANS","AMIT THAKUR"],
+["13","24/4/2026","UP0620020000008","Rohit Kumar",2850000,"Ghaziabad","","Pending with Branch","JAI AGGARWAL","DEEPAK KUMAR"],
+["14","24/4/2026","UP0620020000010","Manish Kumar",3600000,"Ghaziabad","HO FS","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["15","24/4/2026","UP0620020000011","Jawahir Prajapati",2600000,"Ghaziabad","HO FS","Sanctioned","DEEPAK KUMAR","DEEPAK KUMAR"],
+["16","8/5/2026","UP0210020000010","YASH JAISWAL",4000000,"Noida","","Pending with Branch","AMIT DAHIYA","LOHIT TATA"],
+["17","8/5/2026","UP0210020000012","RISHAB KUMAR GUPTA",3200000,"Noida","HO FS","Sanctioned","SITA CHAURASIYA","AMIT THAKUR"],
+["18","8/5/2026","UP0210020000011","GEETA",7500000,"Noida","","Pending with Branch","AMIT THAKUR","LOHIT TATA"],
+["19","8/5/2026","UP0210020000007","NANDI AKOLIYA",3800000,"Noida","","Pending with Branch","DEEPAK KUMAR","LOHIT TATA"],
+["20","8/5/2026","UP0210020000023","KUNAL AGGARWAL",6000000,"Noida","","Pending with Branch","AMIT DAHIYA","LOHIT TATA"],
+["21","7/5/2026","UP0210020000003","MUKESH NARAYAN TEWARI",4000000,"Noida","","Pending with HO","AMIT THAKUR","LOHIT TATA"],
+["22","13/5/2026","DL0110020000019","Harshit Sinha",4500000,"Delhi","SUD","Sanctioned","JAI AGGARWAL","LOHIT TATA"],
+["23","13/5/2026","UP0620020000011","Akshay Poddar",2500000,"Ghaziabad","","Pending with Branch","SITA CHAURASIYA","DEEPAK KUMAR"],
+["24","14/5/2026","UP0710020000014","VIKRAM SINGH",2700000,"Greater Noida","Disbursed","Sanctioned","DEEPAK KUMAR","DEEPAK KUMAR"],
+["25","14/5/2026","UP0710020000009","HONEY SODHI",4500000,"Greater Noida","HO FS","Pending with HO","AMIT THAKUR","LOHIT TATA"],
+["26","14/5/2026","DL0110020000007","Shivani",5100000,"Delhi","HO IPS","Sanctioned","AMIT DAHIYA","LOHIT TATA"],
+["27","46361","DL0750020000015","Nripendra Narayan",2500000,"Pitam Pura","HO FS","Sanctioned","AMIT DAHIYA","AMIT THAKUR"],
+["28","8/5/2026","DL01100200000023","Saurabh Singh Phougat",2700000,"Delhi","SUD","Sanctioned","AMIT DAHIYA","DEEPAK KUMAR"],
+["29","13/5/2026","DL0750020000005","Sachin Kumar",6050000,"Pitam Pura","SUD","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["30","13/5/2026","DL0750020000010","DEVCHANDRA YADAV",2500000,"Pitam Pura","HO FS","Pending with HO","ADIL GARG","AMIT THAKUR"],
+["31","15/5/2026","DL0980020000008","SURAJ KUMAR PATHAK",3600000,"Laxmi Nagar","Disbursed","Sanctioned","JAI AGGARWAL","LOHIT TATA"],
+["32","15/5/2026","UP0210020000014","LALIT MOHAN BISHT",32000000,"Noida","","Pending with Branch","DEEPAK KUMAR","DEEPAK KUMAR"],
+["33","14/5/2026","UP0210020000026","RAM SINGH MEENA",2700000,"Noida","","Sanctioned","HIMANSHI HANS","DEEPAK KUMAR"],
+["34","15/5/2026","DL0750020000001","Umesh Singh",3200000,"Pitam Pura","HO FS","Sanctioned","JAI AGGARWAL","DEEPAK KUMAR"],
+["35","15/5/2026","UP0620020000009","DEEPAK KUMAR",3500000,"Ghaziabad","HO FS","Pending with Branch","AMIT THAKUR","AMIT THAKUR"],
+["36","27/5/2026","HR0510020000010","KRISHAN KUMAR",2030000,"Gurgaon","HO FS","Sanctioned","AMIT DAHIYA","AMIT THAKUR"],
+["37","18/5/2026","UP0610020000004","VIKAS",2400000,"Meerut","SUD","Sanctioned","AMIT THAKUR","AMIT THAKUR"],
+["39","16/5/2026","UP0710020000015","Anant Kumar Mishra",3800000,"Greater Noida","Branch 3rd Party","Pending with Branch","AMIT DAHIYA",""],
+["40","18/5/2026","UP0710020000008","Rahul Sharma",8200000,"Greater Noida","Disbursed","Sanctioned","ADIL GARG","LOHIT TATA"],
+["41","18/5/2026","DL0750020000013","Tara Kumar Gamal",3900000,"Pitam Pura","SUD","Sanctioned","AMIT DAHIYA","LOHIT TATA"],
+["42","18/5/2026","DL0980020000012","S",4300000,"Laxmi Nagar","SUD","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["43","5/5/2026","DL0750020000011","Navratan Yadav",4800000,"Pitam Pura","SUD","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["44","19/5/2026","DL01100200000045","ANIL KUMAR SONI",0,"Delhi","HO FS","Pending with HO","JAI AGGARWAL","DEEPAK KUMAR"],
+["45","20/5/2026","HR1000020000001","Rishi Singh",1800000,"Kundli, Haryana","HO FS","Sanctioned","HIMANSHI HANS","AMIT THAKUR"],
+["46","20/5/2026","DL0110020000011","Amir Shabbir",2500000,"Delhi","SUD","Sanctioned","AMIT DAHIYA","AMIT THAKUR"],
+["47","20/5/2026","HR1000020000004","Sompal Singh",2000000,"Kundli, Haryana","HO FS","Sanctioned","HIMANSHI HANS","AMIT THAKUR"],
+["48","20/5/2026","DL0980020000006","BHANU PRIYA",5577000,"Laxmi Nagar","Lost Lead","Lost Lead","ADIL GARG",""],
+["49","20/5/2026","UP0620020000015","SANJEEV KUMAR",2500000,"Ghaziabad","HO FS","Sanctioned","AMIT DAHIYA","AMIT THAKUR"],
+["50","21/5/2026","DL0110020000043","Bhushan Sharma",2500000,"Delhi","HO FS","Sanctioned","JAI AGGARWAL","DEEPAK KUMAR"],
+["51","21/5/2026","UP0620020000016","UROOJ MALIK",2500000,"Ghaziabad","","Pending with Branch","SITA CHAURASIYA","AMIT THAKUR"],
+["52","21/5/2026","DL0750020000014","Om Prakash",3000000,"Pitam Pura","Disbursed","Sanctioned","ADIL GARG","DEEPAK KUMAR"],
+["53","22/5/2026","HR0510020000044","AJAY KUMAR SINGH BHADAURIYA",2500000,"Gurgaon","","Sanctioned","AMIT DAHIYA","AMIT THAKUR"],
+["54","22/5/2026","UP0610020000011","MUKESH",2268000,"Meerut","HO FS","Rejected","JAI AGGARWAL","DEEPAK KUMAR"],
+["55","22/5/2026","UP0710020000013","ABHISHEK KUMAR",4600000,"Greater Noida","Branch 3rd Party","Pending with Branch","JAI AGGARWAL","LOHIT TATA"],
+["56","22/5/2026","UP0610020000005","ASHISH KUMAR",2300000,"Meerut","HO FS","Sanctioned","HIMANSHI HANS","DEEPAK KUMAR"],
+["57","26/5/2026","HR0510020000016","WILLIAM MASIH",5650000,"Gurgaon","HO FS","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["58","22/5/2026","UP0210020000013","JAGDISH MANJHI",4000000,"Noida","HO FS","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["59","27/5/2026","HR0510020000015","SANJEEV KUMAR SINGH",2500000,"Gurgaon","HO FS","Sanctioned","HIMANSHI HANS","LOHIT TATA"],
+["61","25/5/2026","DL0750020000028","CHIRANJIT PODDER",3800000,"Pitam Pura","SUD","Sanctioned","JAI AGGARWAL","LOHIT TATA"],
+["62","27/5/2026","HR0510020000007","YUGAL KISHORE JOSHI",3920000,"Gurgaon","SUD","Sanctioned","ADIL GARG","LOHIT TATA"],
+["63","26/5/2026","UP0620020000020","SANCHIT SAXENA",2800000,"Ghaziabad","HO FS","Sanctioned","HIMANSHI HANS","AMIT THAKUR"],
+["64","26/5/2026","UP0620020000017","ARVIND KUMAR",4800000,"Ghaziabad","HO FS","Pending with Branch","ADIL GARG",""],
+["65","26/5/2026","DL0980020000007","BHUPENDER KUMAR",2580000,"Laxmi Nagar","SUD","Sanctioned","AMIT DAHIYA","AMIT THAKUR"],
+["66","26/5/2026","DL0660020000002","ABHISHEK MAHESHWARI",4000000,"Dwarka, Delhi","HO FS","Pending with Branch","HIMANSHI HANS",""],
+["67","26/5/2026","UP0610020000006","MANJU RANI",1600000,"Meerut","HO FS","Sanctioned","JAI AGGARWAL","DEEPAK KUMAR"],
+["68","28/5/2026","HR0510020000027","RAUNAK SINGH",9300000,"Gurgaon","HO FS","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["69","27/5/2026","DL0750020000007","UMANG SUTHAR",7500000,"Pitam Pura","SUD","Sanctioned","ADIL GARG","LOHIT TATA"],
+["70","27/5/2026","UP0620020000031","ABHISHEK MITTAL",3000000,"Ghaziabad","HO FS","Sanctioned","AMIT DAHIYA","AMIT THAKUR"],
+["71","27/5/2026","DL0750020000022","HARENDRA KUMAR",3700000,"Pitam Pura","SUD","Sanctioned","HIMANSHI HANS","LOHIT TATA"],
+["72","27/5/2026","HR0990020000004","JAYASHREE BISWAS",4300000,"Faridabad","Branch 3rd Party","Pending with Branch","JAI AGGARWAL","LOHIT TATA"],
+["73","27/5/2026","DL0110020000018","SATYA NARAYAN MEENA",2750000,"Delhi","SUD","Sanctioned","SITA CHAURASIYA","AMIT THAKUR"],
+["74","28/5/2026","HR0510020000041","BIMLA DEVI",4200000,"Gurgaon","HO FS","Sanctioned","JAI AGGARWAL","LOHIT TATA"],
+["75","30/5/2026","HR0510020000011","SUMIT CHHABRA",2542000,"Gurgaon","HO FS","Sanctioned","HIMANSHI HANS","AMIT THAKUR"],
+["76","28/5/2026","DL0660020000013","NITYANAND SINGH",5100000,"Dwarka, Delhi","SUD","Sanctioned","ADIL GARG","LOHIT TATA"],
+["77","30/5/2026","HR0510020000049","RAJ R MANI TRIPATHI",2944000,"Gurgaon","SUD","Sanctioned","ADIL GARG","DEEPAK KUMAR"],
+["78","7/5/2026","HR0510020000021","SHIVANI UPADHYAY",2600000,"Gurgaon","","Sanctioned","AMIT DAHIYA","DEEPAK KUMAR"],
+["79","25/5/2026","HR0510020000012","MANOJ KUMAR GUPTA",4000000,"Gurgaon","HO FS","Pending with Branch","SITA CHAURASIYA","LOHIT TATA"],
+["80","29/5/2026","UP0610020000024","NIKHIL MITTAL",1800000,"Meerut","HO FS","Sanctioned","HIMANSHI HANS","AMIT THAKUR"],
+["81","29/5/2026","DL0750020000004","BHAGAT MAHENDRA MOHAN SINGH",6100000,"Pitam Pura","HO FS","Sanctioned","AMIT DAHIYA","LOHIT TATA"],
+["82","29/5/2026","DL0110020000056","NIKHIL KUMAR",7000000,"Delhi","HO FS","Sanctioned","SITA CHAURASIYA","N RAGOTHAMAN"],
+["83","29/5/2026","UP0620020000029","SHIBA SHARMA",4200000,"Ghaziabad","HO FS","Sanctioned","HIMANSHI HANS","LOHIT TATA"],
+["84","30/5/2026","DL0660020000015","MANJEE UPADHYAY",3000000,"Dwarka, Delhi","HO FS","Pending with Branch","ADIL GARG","DEEPAK KUMAR"],
+["85","30/5/2026","DL0660020000010","SHAILENDRA KUMAR PURI",5000000,"Dwarka, Delhi","SUD","Sanctioned","ADIL GARG","LOHIT TATA"],
+["86","30/5/2026","DL0980020000019","MADHO SINGH",3400000,"Laxmi Nagar","SUD","Sanctioned","HIMANSHI HANS","AMIT THAKUR"],
+["87","30/5/2026","DL0110020000039","DHRUV RIKHARI",4000000,"Delhi","HO FS","Sanctioned","AMIT DAHIYA",""],
+["88","25/5/2026","HR0510020000006","AKASH",2500000,"Gurgaon","HO IPS","Pending with HO","AMIT DAHIYA","DEEPAK KUMAR"],
+["89","28/5/2026","HR0510020000033","HENDRY SINGH",8200000,"Gurgaon","HO FS","Pending with HO","ADIL GARG","LOHIT TATA"],
+["90","30/5/2026","DL0980020000011","ABHISHEK KUMAR SINGH",2940000,"Laxmi Nagar","SUD","Sanctioned","SITA CHAURASIYA","AMIT THAKUR"],
+["92","1/6/2026","DL0660020000004","RUBY",2550000,"Dwarka, Delhi","HO FS","Sanctioned","HIMANSHI HANS","LOHIT TATA"],
+["93","1/6/2026","DL0750020000038","DHRUV BANSAL",12500000,"Pitam Pura","HO IPS","Pending with HO","ADIL GARG","N RAGOTHAMAN"],
+["94","2/6/2026","UP0620020000030","SIMPY MEHRA",6000000,"Ghaziabad","HO IPS","Pending with Branch","SITA CHAURASIYA","N RAGOTHAMAN"],
+["95","2/6/2026","HR0510020000043","ANKIT",4500000,"Gurgaon","HO FS","Pending with Branch","AMIT DAHIYA","LOHIT TATA"],
+["96","2/6/2026","DL0110020000065","SREE KUMAR DEVARAJ",2850000,"Delhi","HO IPS","Sanctioned","SITA CHAURASIYA","AMIT THAKUR"],
+["97","2/6/2026","DL0110020000073","ABHINAV MISHRA",5900000,"Delhi","SUD","Pending with Branch","ADIL GARG","LOHIT TATA"],
+["98","3/6/2026","UP0210020000033","ANIL",2700000,"Noida","HO IPS","Pending with Branch","JAI AGGARWAL",""],
+["99","3/6/2026","DL0110020000061","ELSY ZENITH TOPPO",4000000,"Delhi","HO FS","Pending with Branch","AMIT DAHIYA","LOHIT TATA"],
+["100","3/6/2026","HR1000020000002","IRFAN",1700000,"Kundli, Haryana","HO FS","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["101","4/6/2026","DL0750020000023","RAJANISH PRASAD",1550000,"Pitam Pura","HO FS","Pending with Branch","JAI AGGARWAL",""],
+["102","4/6/2026","UP0610020000008","RAJEEV SINGH",1575000,"Meerut","HO FS","Pending with Branch","AMIT DAHIYA",""],
+["103","4/6/2026","UP0710020000012","CHANDRASHEKHAR MISHRA",2500000,"Greater Noida","HO IPS","Pending with HO","ANURAG","DEEPAK KUMAR"],
+["104","4/6/2026","DL0110020000038","LOKESH KUMAR MEENA",4500000,"Delhi","HO FS","Sanctioned","SITA CHAURASIYA","LOHIT TATA"],
+["105","4/6/2026","HR0510020000023","SUNIL",2800000,"Gurgaon","HO FS","Pending with Branch","HIMANSHI HANS","AMIT THAKUR"],
+["106","4/6/2026","DL0750020000035","ASHISH KUMAR",2600000,"Pitam Pura","HO FS","Pending with HO","HIMANSHI HANS","AMIT THAKUR"],
+["107","4/6/2026","HR1000020000005","BHAGAT SINGH",1948000,"Kundli, Haryana","HO FS","Sanctioned","JAI AGGARWAL","LOHIT TATA"],
+["108","4/6/2026","DL0110200000062","DEVENDRA SINGH RAWAT",2500000,"Delhi","HO FS","Pending with Branch","HIMANSHI HANS","DEEPAK KUMAR"],
+["109","4/6/2026","DL0110020000051","ANUBHAV MONGA",7500000,"Delhi","HO FS","Sanctioned","AMIT THAKUR","LOHIT TATA"],
+["110","4/6/2026","DL0980020000014","RISHIKESH TIWARI",2580000,"Laxmi Nagar","SUD","Sanctioned","HIMANSHI HANS","AMIT THAKUR"],
+["111","5/6/2026","DL0110020000042","SURAJ KUMAR",2990000,"Delhi","HO FS","Pending with HO","JAI AGGARWAL",""],
+["112","5/6/2026","HR1000020000003","NITEESH KUMAR DUBEY",1575000,"Kundli, Haryana","HO FS","Pending with HO","JAI AGGARWAL",""],
+["113","5/6/2026","UP0710020000018","MANISHA BAI",3280000,"Greater Noida","HO FS","Pending with Branch","HIMANSHI HANS","LOHIT TATA"],
+["114","5/6/2026","DL0750020000027","SAURABH KUMAR MEENA",5123000,"Pitam Pura","HO FS","Pending with Branch","SITA CHAURASIYA",""],
+["115","5/6/2026","DL0660020000019","GEELA RAM MEENA",12700000,"Dwarka, Delhi","HO FS","PUT UP FOR SANCTION","DEEPAK KUMAR","N RAGOTHAMAN"],
+["116","5/6/2026","UP0620020000019","ABHISHEK GUPTA",2510000,"Ghaziabad","HO FS","Sanctioned","AMIT DAHIYA","AMIT THAKUR"],
+["117","5/6/2026","DL0980020000002","JASPREET SINGH",10000000,"Laxmi Nagar","Branch 3rd Party","Pending with Branch","JAI AGGARWAL","LOHIT TATA"],
+["118","8/6/2026","DL0110020000059","AMIT SINGH",2500000,"Delhi","HO FS","Pending with Branch","AMIT DAHIYA","DEEPAK KUMAR"],
+["119","8/6/2026","HR0510020000042","VIKAS KUMAR GUPTA",4200000,"Gurgaon","HO FS","Sanctioned","AMIT THAKUR","LOHIT TATA"],
+["120","8/6/2026","DL0750020000043","SACHIN GUPTA",5600000,"Pitam Pura","HO IPS","Pending with HO","JYOTI BHANDARI","LOHIT TATA"],
+["121","8/6/2026","DL0980020000001","YOGENDRA SINGH",3980000,"Laxmi Nagar","HO FS","Pending with HO","DEEPAK KUMAR","LOHIT TATA"],
+["122","9/6/2026","DL0750020000020","KRISHNA PATHAK",3000000,"Pitam Pura","HO FS","Pending with Branch","ADIL GARG","AMIT THAKUR"],
+["123","9/6/2026","HR0510020000005","VISHAL KUSHWAHA",7450000,"Gurgaon","HO FS","Pending with HO","ADIL GARG","LOHIT TATA"],
+["124","9/6/2026","UP0710020000020","SUMA BISHWAS",3000000,"Greater Noida","HO FS","Sanctioned","AMIT DAHIYA","DEEPAK KUMAR"],
+["125","9/6/2026","DL0750020000040","Bhagwati Prasad Kandpal",4500000,"Pitam Pura","HO IPS","Pending with HO","AMIT DAHIYA",""],
+["126","9/6/2026","DL0750020000018","POONAM DEVI BHATT",2700000,"Pitam Pura","HO FS","Pending with Branch","HIMANSHI HANS","DEEPAK KUMAR"],
+["127","9/6/2026","DL0110020000074","SANDEEP KUMAR",4500000,"Delhi","HO FS","Pending with Branch","HIMANSHI HANS",""],
+["128","9/6/2026","DL0750020000045","SURESH ARORA",3540000,"Pitam Pura","SUD","Sanctioned","ADIL GARG","LOHIT TATA"],
+["129","9/6/2026","DL0660020000011","KAILASH SAHOO",2500000,"Dwarka, Delhi","HO FS","Sanctioned","DEEPAK KUMAR","DEEPAK KUMAR"],
+["130","9/6/2026","UP0710020000056","RAHUL PANDEY",3200000,"Greater Noida","HO FS","Pending with Branch","AMIT THAKUR","AMIT THAKUR"],
+["131","9/6/2026","HR0510020000031","INDRA JEET",3220000,"Gurgaon","HO FS","Pending with Branch","AMIT DAHIYA",""],
+["132","10/6/2026","DL0660020000021","AMAR SINGH MEENA",3650000,"Dwarka, Delhi","HO FS","Sanctioned","HIMANSHI HANS","LOHIT TATA"],
+["133","10/6/2026","HR0510020000056","TANVI",5500000,"Gurgaon","HO IPS","Pending with Branch","JAI AGGARWAL",""],
+["134","11/6/2026","DL0660020000020","RAVINDRA KUMAR MEENA",3920000,"Dwarka, Delhi","SUD","Sanctioned","ADIL GARG","LOHIT TATA"],
+["135","11/6/2026","DL0980020000017","SOURAV MEENA",2500000,"Laxmi Nagar","HO FS","Pending with Branch","HIMANSHI HANS",""],
+["136","11/6/2026","UP0610020000043","MUKESH",2268000,"Meerut","HO FS","Sanctioned","JAI AGGARWAL",""],
+["137","12/6/2026","UP0210020000008","RATTAN SINGH",7200000,"Noida","HO FS","Pending with Branch","ADIL GARG","LOHIT TATA"],
+["138","12/6/2026","HR0510020000045","ASHISH RAWAT",3000000,"Gurgaon","HO FS","Sanctioned","JYOTI BHANDARI","JYOTI BHANDARI"],
+["139","12/6/2026","DL0110020000086","ASHISH KUMAR SRIVASTAVA",2990000,"Delhi","HO FS","Pending with Branch","HIMANSHI HANS",""],
+["140","12/6/2026","DL0110020000044","MANISH TIWARI",3000000,"Delhi","HO FS","Sanctioned","JYOTI BHANDARI","JYOTI BHANDARI"],
+["141","12/6/2026","DL0750020000030","BHAWANI DEVI",2500000,"Pitam Pura","","Pending with HO","",""],
+["142","12/6/2026","HR0510020000054","VEDANSH VASHISTHA",5000000,"Gurgaon","HO IPS","Pending with Branch","JAI AGGARWAL",""],
+["143","15/6/2026","DL0750020000040","BHAGWATI PRASAD KANDWAL",4500000,"Pitam Pura","HO IPS","Pending with HO","ANURAG","LOHIT TATA"],
+["144","15/6/2026","UP0620020000035","YOGENDAR SINGH",2790000,"Ghaziabad","HO FS","Pending with Branch","ANURAG","DEEPAK KUMAR"],
+["145","15/6/2026","DL0750020000019","MANISHA KUMARI",2500000,"Pitam Pura","HO FS","Sanctioned","JYOTI BHANDARI","JYOTI BHANDARI"],
+["146","15/6/2026","HR0510020000055","ANTRA VERMA",5000000,"Gurgaon","","Pending with HO","JAI AGGARWAL",""],
+["147","15/6/2026","DL0110020000064","PANKAJ TOKAS",1500000,"Delhi","","Pending with HO","",""],
+["148","15/6/2026","HR0510020000046","SIDDHARTH BASOYA",5300000,"Gurgaon","HO FS","Pending with Branch","ADIL GARG",""],
+["149","15/6/2026","UP0210020000036","VINOD KUMAR",3400000,"Noida","HO IPS","Pending with Branch","AMIT THAKUR","AMIT THAKUR"],
+["150","16/6/2026","HR1000020000007","AMIT KUMAR",1800000,"Kundli, Haryana","HO FS","Pending with Branch","HIMANSHI HANS",""],
+["151","16/6/2026","UP0210020000006","DHEERAJ SINGH",3850000,"Noida","","Pending with Branch","ANURAG",""],
+["152","17/6/2026","DL0660020000039","VIKAS KUMAR TOMAR",4000000,"Dwarka, Delhi","","","JAI AGGARWAL",""],
+["153","17/6/2026","HR0510020000066","UTKARSH GUPTA",5400000,"Gurgaon","HO FS","Pending with Branch","SITA CHAURASIYA","LOHIT TATA"],
+["154","17/6/2026","DL0110020000037","HEMA",3400000,"Delhi","HO FS","Pending with HO","JYOTI BHANDARI","JYOTI BHANDARI"],
+["155","17/6/2026","DL0750020000024","MAHIPAL SINGH",2500000,"Pitam Pura","","Pending with Branch","ANURAG",""],
+["156","18/6/2026","UP0610020000035","VIJAY PAL SINGH",2165000,"Meerut","","","",""],
+["157","18/6/2026","DL0660020000022","AYUSH SRIVASTAVA",3100000,"Dwarka, Delhi","HO FS","Pending with Branch","SITA CHAURASIYA","JYOTI BHANDARI"],
+["158","18/6/2026","DL0110020000053","MANJEET KUMAR",3000000,"Delhi","","Pending with Branch","ADIL GARG",""],
+["159","18/6/2026","DL0110020000047","MOUSUMI KARMAKAR NATH",3500000,"Delhi","","","JAI AGGARWAL",""],
+["160","18/6/2026","DL0110020000075","SUMEET SACHDEVA",4700000,"Delhi","HO FS","Pending with Branch","HIMANSHI HANS",""],
+["161","18/6/2026","UP0710020000062","ABHIMANYU YADAV",3320000,"Greater Noida","HO FS","Pending with HO","ANURAG",""],
+["162","19/6/2026","DL0750020000044","NEERAJ YADAV",4500000,"Pitam Pura","HO FS","Pending with Branch","SITA CHAURASIYA",""],
+["163","19/6/2026","UP0710020000054","ARVISH KUMAR",14900000,"Greater Noida","","","ADIL GARG",""],
+["164","19/6/2026","DL0750020000012","RAHMAT ALI",3050000,"Pitam Pura","","","JYOTI BHANDARI",""],
+["165","19/6/2026","HR0510020000073","SHAILENDER KUMAR",5500000,"Gurgaon","","","SITA CHAURASIYA",""],
+["166","19/6/2026","UP0620020000037","ADITYA RANJAN SINGH",3000000,"Ghaziabad","","","JAI AGGARWAL",""],
+["167","11/6/2026","UP0710020000012","CHANDRASHEKHAR MISHRA",2500000,"Greater Noida","HO IPS","Pending with HO","ANURAG","DEEPAK KUMAR"]
+];
+
+let FILES = RAW.map(r=>({
+  sno:r[0], dateStr:r[1], fileNo:r[2], name:r[3],
+  amt:Number(r[4])||0, branch:r[5],
+  stage:normalizeStage(r[6]), query:normalizeQuery(r[7]),
+  po:r[8]||'', so:r[9]||'',
+  date:parseDate(r[1]),
+  days:null, tat:''
+}));
+FILES.forEach(f=>{f.days=daysSince(f.date);f.tat=tatLabel(f.days);});
+
+const POS=[...new Set(FILES.map(f=>f.po).filter(x=>x))].sort();
+const SOS=[...new Set(FILES.map(f=>f.so).filter(x=>x))].sort();
+const BRANCHES=[...new Set(FILES.map(f=>f.branch).filter(x=>x))].sort();
+const STAGES_LIST=['HO FS','HO IPS','SUD','Disbursed','Sanctioned','Branch 3rd Party','Lost Lead','Rejected','Unknown'];
+const QS_LIST=['Pending with Branch','Pending with HO','Sanctioned','Rejected','Clear','Not Set','PUT UP FOR SANCTION'];
+
+const STAGE_COL={'HO FS':'t-hofs','HO IPS':'t-hoips','SUD':'t-sud','Disbursed':'t-disb','Sanctioned':'t-sanc','Branch 3rd Party':'t-b3p','Lost Lead':'t-ll','Rejected':'t-rej'};
+const QS_COL={'Pending with Branch':'t-pb','Pending with HO':'t-ph','Sanctioned':'t-cl','Clear':'t-cl','Rejected':'t-rej'};
+
+let editIdx=null;
+
+function sc(cls){return`<span class="tag ${cls||'t-unk'}">`}
+function stageTag(s){return`${sc(STAGE_COL[s]||'t-unk')}${s||'—'}</span>`}
+function qTag(q){return`${sc(QS_COL[q]||'')}${q||'—'}</span>`}
+function fmtAmt(a){return a?'₹'+(a/100000).toFixed(1)+'L':'—'}
+function tatSpan(t,d){
+  const cls=t==='On Track'?'tat-on':t==='Watch'?'tat-watch':(t==='Overdue'||t==='Critical')?'tat-over':'tat-done';
+  return`<span class="${cls}">${t} (${d??'—'}d)</span>`;
+}
+
+function bar(lbl,val,max,color,sfx=''){
+  const pct=max?Math.round(val/max*100):0;
+  return`<div class="bar-row"><div class="bar-lbl" title="${lbl}">${lbl}</div><div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div><div class="bar-num">${val}${sfx}</div></div>`;
+}
+
+function sw(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['dash','pipeline','po','so','branch','files','add'][i]===id));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  const fn={dash:renderDash,pipeline:renderPipeline,po:renderPO,so:renderSO,branch:renderBranch,files:()=>{buildFileFilters();renderFiles();},add:renderAdd};
+  if(fn[id])fn[id]();
+}
+
+function renderDash(){
+  const total=FILES.length;
+  const sanc=FILES.filter(f=>f.query==='Sanctioned'||f.stage==='Sanctioned'||f.stage==='Disbursed').length;
+  const pendB=FILES.filter(f=>f.query==='Pending with Branch').length;
+  const pendH=FILES.filter(f=>f.query==='Pending with HO').length;
+  const totalAmt=FILES.reduce((s,f)=>s+f.amt,0);
+  const avgAmt=total?Math.round(totalAmt/total/100000):0;
+
+  let html=`<div class="metrics">
+    <div class="mc"><div class="lbl">Total logins</div><div class="val">${total}</div><div class="sub">June 2026</div></div>
+    <div class="mc"><div class="lbl">Sanctioned</div><div class="val" style="color:#27500A">${sanc}</div><div class="sub">${Math.round(sanc/total*100)}% rate</div></div>
+    <div class="mc"><div class="lbl">Pending — Branch</div><div class="val" style="color:#993C1D">${pendB}</div><div class="sub">needs branch reply</div></div>
+    <div class="mc"><div class="lbl">Pending — HO</div><div class="val" style="color:#3C3489">${pendH}</div><div class="sub">needs HO action</div></div>
+    <div class="mc"><div class="lbl">Avg loan size</div><div class="val">₹${avgAmt}L</div><div class="sub">₹${Math.round(totalAmt/10000000)}Cr total book</div></div>
+  </div>`;
+
+  // Stage distribution
+  const stageCounts={};STAGES_LIST.forEach(s=>stageCounts[s]=FILES.filter(f=>f.stage===s).length);
+  const maxS=Math.max(...Object.values(stageCounts),1);
+  const sCols={'HO FS':'#378ADD','HO IPS':'#534AB7','SUD':'#EF9F27','Disbursed':'#1D9E75','Sanctioned':'#639922','Branch 3rd Party':'#888780','Lost Lead':'#D85A30','Rejected':'#E24B4A','Unknown':'#B4B2A9'};
+  let stageBars=STAGES_LIST.filter(s=>stageCounts[s]>0).map(s=>bar(s,stageCounts[s],maxS,sCols[s])).join('');
+
+  // Query distribution
+  const qCounts={};QS_LIST.forEach(q=>qCounts[q]=FILES.filter(f=>f.query===q).length);
+  const maxQ=Math.max(...Object.values(qCounts),1);
+  const qCols={'Pending with Branch':'#D85A30','Pending with HO':'#534AB7','Sanctioned':'#639922','Clear':'#1D9E75','Rejected':'#E24B4A','Not Set':'#B4B2A9','PUT UP FOR SANCTION':'#EF9F27'};
+  let qBars=QS_LIST.filter(q=>qCounts[q]>0).map(q=>bar(q,qCounts[q],maxQ,qCols[q])).join('');
+
+  // TAT distribution
+  const tatC={Critical:0,Overdue:0,Watch:0,'On Track':0};
+  FILES.forEach(f=>{if(f.tat&&tatC[f.tat]!==undefined)tatC[f.tat]++;});
+  const maxT=Math.max(...Object.values(tatC),1);
+  const tCols={Critical:'#A32D2D',Overdue:'#D85A30',Watch:'#EF9F27','On Track':'#639922'};
+  let tatBars=Object.entries(tatC).filter(([,v])=>v>0).map(([k,v])=>bar(k,v,maxT,tCols[k])).join('');
+
+  html+=`<div class="three">
+    <div class="card"><h3>Stage distribution</h3>${stageBars}</div>
+    <div class="card"><h3>Query status</h3>${qBars}</div>
+    <div class="card"><h3>TAT status</h3>${tatBars}<div style="font-size:10px;color:var(--color-text-secondary);margin-top:6px">Watch=8-15d · Overdue=16-30d · Critical>30d</div></div>
+  </div>`;
+
+  // Pending action table
+  const pend=FILES.filter(f=>f.query==='Pending with Branch'||f.query==='Pending with HO').sort((a,b)=>(b.days||0)-(a.days||0));
+  html+=`<div class="card" style="margin-top:0"><h3>🔴 Action required (${pend.length} files) — sorted by days pending</h3>
+  <table><thead><tr><th>File No</th><th>Customer</th><th>Branch</th><th>Loan</th><th>PO</th><th>Stage</th><th>Query pending with</th><th>Days at hub</th></tr></thead><tbody>
+  ${pend.map(f=>`<tr><td style="font-weight:500;font-size:10px">${f.fileNo}</td><td>${f.name}</td><td>${f.branch}</td><td>${fmtAmt(f.amt)}</td><td>${f.po||'—'}</td><td>${stageTag(f.stage)}</td><td>${qTag(f.query)}</td><td>${tatSpan(f.tat,f.days)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+
+  document.getElementById('s-dash').innerHTML=html;
+  document.getElementById('hdr-sub').textContent=`${total} files · ₹${Math.round(totalAmt/10000000)}Cr pipeline · As of 20-Jun-2026`;
+  document.getElementById('last-upd').textContent='Ref: June-26 Tracker';
+}
+
+function renderPipeline(){
+  const stages=['HO FS','HO IPS','SUD','Disbursed','Sanctioned','Branch 3rd Party','Lost Lead','Rejected'];
+  const sCols={'HO FS':['#E6F1FB','#0C447C'],'HO IPS':['#EEEDFE','#26215C'],'SUD':['#FAEEDA','#412402'],'Disbursed':['#E1F5EE','#04342C'],'Sanctioned':['#EAF3DE','#173404'],'Branch 3rd Party':['#F1EFE8','#2C2C2A'],'Lost Lead':['#FCEBEB','#501313'],'Rejected':['#FCEBEB','#501313']};
+  const qBg={'Pending with Branch':'#FAECE7','Pending with HO':'#EEEDFE','Sanctioned':'#EAF3DE','Clear':'#EAF3DE','Not Set':'#F1EFE8'};
+  const qTx={'Pending with Branch':'#993C1D','Pending with HO':'#3C3489','Sanctioned':'#27500A','Clear':'#27500A','Not Set':'#5F5E5A'};
+  let html=`<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px">`;
+  stages.forEach(s=>{
+    const sf=FILES.filter(f=>f.stage===s);
+    const [bg,fg]=sCols[s]||['#F1EFE8','#2C2C2A'];
+    html+=`<div style="min-width:160px;flex-shrink:0">
+      <div style="background:${bg};color:${fg};font-size:10px;font-weight:500;padding:5px 8px;border-radius:5px 5px 0 0;text-align:center">${s} <span style="background:${fg};color:${bg};border-radius:8px;padding:1px 5px;font-size:9px">${sf.length}</span></div>
+      <div style="border:0.5px solid var(--color-border-tertiary,#e0e0e0);border-top:none;border-radius:0 0 5px 5px;min-height:50px;padding:4px;max-height:480px;overflow-y:auto">
+      ${sf.map(f=>{const qb=qBg[f.query]||'#F1EFE8';const qt=qTx[f.query]||'#5F5E5A';return`<div onclick="openModal(${FILES.indexOf(f)})" style="background:${qb};color:${qt};padding:4px 6px;border-radius:4px;margin-bottom:3px;cursor:pointer;font-size:10px"><div style="font-weight:500">${f.fileNo.slice(-8)}</div><div style="opacity:.85">${f.name.split(' ').slice(0,2).join(' ')}</div><div style="opacity:.7">${f.po||'—'} · ${fmtAmt(f.amt)}</div><div style="font-size:9px;margin-top:1px">${f.query}</div></div>`}).join('')||'<div style="font-size:10px;color:var(--color-text-secondary);padding:6px">Empty</div>'}
+      </div></div>`;
+  });
+  html+=`</div><div style="font-size:10px;color:var(--color-text-secondary);margin-top:6px">Click any file card to update stage / query status</div>`;
+  document.getElementById('s-pipeline').innerHTML=html;
+}
+
+function renderPO(){
+  const poData=POS.map(po=>{
+    const pf=FILES.filter(f=>f.po===po);
+    const sanc=pf.filter(f=>f.query==='Sanctioned'||f.stage==='Sanctioned'||f.stage==='Disbursed').length;
+    const pendB=pf.filter(f=>f.query==='Pending with Branch').length;
+    const pendH=pf.filter(f=>f.query==='Pending with HO').length;
+    const avgDays=pf.length?Math.round(pf.reduce((s,f)=>s+(f.days||0),0)/pf.length):0;
+    const critOver=pf.filter(f=>f.tat==='Critical'||f.tat==='Overdue').length;
+    const sanctAmt=pf.filter(f=>f.query==='Sanctioned'||f.stage==='Sanctioned').reduce((s,f)=>s+f.amt,0);
+    return{po,total:pf.length,sanc,pendB,pendH,avgDays,critOver,sanctAmt};
+  }).sort((a,b)=>b.total-a.total);
+
+  const maxTotal=Math.max(...poData.map(p=>p.total),1);
+  const maxSanc=Math.max(...poData.map(p=>p.sanc),1);
+  const maxAmt=Math.max(...poData.map(p=>p.sanctAmt),1);
+
+  let html=`<div class="two">
+    <div class="card"><h3>PO — files allocated</h3>${poData.map(p=>bar(p.po,p.total,maxTotal,'#378ADD')).join('')}</div>
+    <div class="card"><h3>PO — sanctioned count</h3>${poData.map(p=>bar(p.po,p.sanc,maxSanc,'#639922')).join('')}</div>
+  </div>
+  <div class="two">
+    <div class="card"><h3>PO — sanctioned amount (₹Cr)</h3>${poData.map(p=>bar(p.po,+(p.sanctAmt/10000000).toFixed(1),maxAmt/10000000,'#1D9E75','Cr')).join('')}</div>
+    <div class="card"><h3>PO — overdue + critical files</h3>${poData.map(p=>bar(p.po,p.critOver,Math.max(...poData.map(x=>x.critOver),1),'#D85A30')).join('')}</div>
+  </div>
+  <div class="card"><h3>PO performance table</h3>
+  <table><thead><tr><th>PO Name</th><th>Total files</th><th>Sanctioned</th><th>% conversion</th><th>Pending Branch</th><th>Pending HO</th><th>Avg TAT (days)</th><th>Overdue/Critical</th><th>Sanctioned amt</th></tr></thead><tbody>
+  ${poData.map(p=>`<tr><td style="font-weight:500">${p.po}</td><td>${p.total}</td><td style="color:#27500A;font-weight:500">${p.sanc}</td><td>${p.total?Math.round(p.sanc/p.total*100):0}%</td><td style="color:#993C1D">${p.pendB}</td><td style="color:#3C3489">${p.pendH}</td><td class="${p.avgDays>20?'tat-over':p.avgDays>10?'tat-watch':'tat-on'}">${p.avgDays}d</td><td style="color:#A32D2D">${p.critOver}</td><td>${(p.sanctAmt/10000000).toFixed(1)}Cr</td></tr>`).join('')}
+  </tbody></table></div>`;
+  document.getElementById('s-po').innerHTML=html;
+}
+
+function renderSO(){
+  const soData=SOS.map(so=>{
+    const sf=FILES.filter(f=>f.so===so);
+    const sanc=sf.filter(f=>f.query==='Sanctioned'||f.stage==='Sanctioned'||f.stage==='Disbursed').length;
+    const avgDays=sf.length?Math.round(sf.reduce((s,f)=>s+(f.days||0),0)/sf.length):0;
+    const critOver=sf.filter(f=>f.tat==='Critical'||f.tat==='Overdue').length;
+    const sanctAmt=sf.filter(f=>f.query==='Sanctioned'||f.stage==='Sanctioned').reduce((s,f)=>s+f.amt,0);
+    return{so,total:sf.length,sanc,avgDays,critOver,sanctAmt};
+  }).sort((a,b)=>b.sanc-a.sanc);
+
+  const maxSanc=Math.max(...soData.map(p=>p.sanc),1);
+  const maxTotal=Math.max(...soData.map(p=>p.total),1);
+  const maxAmt=Math.max(...soData.map(p=>p.sanctAmt),1);
+
+  let html=`<div class="two">
+    <div class="card"><h3>SO — sanctioned count</h3>${soData.map(p=>bar(p.so,p.sanc,maxSanc,'#639922')).join('')}</div>
+    <div class="card"><h3>SO — files under review</h3>${soData.map(p=>bar(p.so,p.total,maxTotal,'#378ADD')).join('')}</div>
+  </div>
+  <div class="card"><h3>SO — sanctioned amount (₹Cr)</h3>${soData.map(p=>bar(p.so,+(p.sanctAmt/10000000).toFixed(1),maxAmt/10000000,'#1D9E75','Cr')).join('')}</div>
+  <div class="card" style="margin-top:10px"><h3>SO performance table</h3>
+  <table><thead><tr><th>SO Name</th><th>Files assigned</th><th>Sanctioned</th><th>% conversion</th><th>Avg TAT (days)</th><th>Overdue/Critical</th><th>Sanctioned amt</th></tr></thead><tbody>
+  ${soData.map(p=>`<tr><td style="font-weight:500">${p.so}</td><td>${p.total}</td><td style="color:#27500A;font-weight:500">${p.sanc}</td><td>${p.total?Math.round(p.sanc/p.total*100):0}%</td><td class="${p.avgDays>20?'tat-over':p.avgDays>10?'tat-watch':'tat-on'}">${p.avgDays}d</td><td style="color:#A32D2D">${p.critOver}</td><td>${(p.sanctAmt/10000000).toFixed(1)}Cr</td></tr>`).join('')}
+  </tbody></table></div>`;
+  document.getElementById('s-so').innerHTML=html;
+}
+
+function renderBranch(){
+  const brData=BRANCHES.map(br=>{
+    const bf=FILES.filter(f=>f.branch===br);
+    const sanc=bf.filter(f=>f.query==='Sanctioned'||f.stage==='Sanctioned'||f.stage==='Disbursed').length;
+    const pendB=bf.filter(f=>f.query==='Pending with Branch').length;
+    const pendH=bf.filter(f=>f.query==='Pending with HO').length;
+    const avgDays=bf.length?Math.round(bf.reduce((s,f)=>s+(f.days||0),0)/bf.length):0;
+    const totalAmt=bf.reduce((s,f)=>s+f.amt,0);
+    const sanctAmt=bf.filter(f=>f.query==='Sanctioned'||f.stage==='Sanctioned').reduce((s,f)=>s+f.amt,0);
+    return{br,total:bf.length,sanc,pendB,pendH,avgDays,totalAmt,sanctAmt};
+  }).sort((a,b)=>b.total-a.total);
+
+  const maxTotal=Math.max(...brData.map(p=>p.total),1);
+  const maxSanc=Math.max(...brData.map(p=>p.sanc),1);
+  const maxAmt=Math.max(...brData.map(p=>p.totalAmt),1);
+
+  let html=`<div class="two">
+    <div class="card"><h3>Branch — logins (file count)</h3>${brData.map(p=>bar(p.br,p.total,maxTotal,'#378ADD')).join('')}</div>
+    <div class="card"><h3>Branch — sanctions</h3>${brData.map(p=>bar(p.br,p.sanc,maxSanc,'#639922')).join('')}</div>
+  </div>
+  <div class="card" style="margin-bottom:10px"><h3>Branch — total loan book (₹Cr)</h3>${brData.map(p=>bar(p.br,+(p.totalAmt/10000000).toFixed(1),maxAmt/10000000,'#534AB7','Cr')).join('')}</div>
+  <div class="card"><h3>Branch performance table</h3>
+  <table><thead><tr><th>Branch</th><th>Total logins</th><th>Sanctioned</th><th>Conversion %</th><th>Pending Branch</th><th>Pending HO</th><th>Avg TAT</th><th>Total book</th><th>Sanctioned amt</th></tr></thead><tbody>
+  ${brData.map(p=>`<tr><td style="font-weight:500">${p.br}</td><td>${p.total}</td><td style="color:#27500A;font-weight:500">${p.sanc}</td><td>${p.total?Math.round(p.sanc/p.total*100):0}%</td><td style="color:#993C1D">${p.pendB}</td><td style="color:#3C3489">${p.pendH}</td><td class="${p.avgDays>20?'tat-over':p.avgDays>10?'tat-watch':'tat-on'}">${p.avgDays}d</td><td>${(p.totalAmt/10000000).toFixed(1)}Cr</td><td>${(p.sanctAmt/10000000).toFixed(1)}Cr</td></tr>`).join('')}
+  </tbody></table></div>`;
+  document.getElementById('s-branch').innerHTML=html;
+}
+
+let fileFiltersBuilt=false;
+function buildFileFilters(){
+  if(fileFiltersBuilt)return;fileFiltersBuilt=true;
+  ['ff-branch','ff-po','ff-so','ff-stage','ff-query'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    const opts={
+      'ff-branch':BRANCHES,'ff-po':POS,'ff-so':SOS,
+      'ff-stage':STAGES_LIST,'ff-query':QS_LIST
+    };
+    (opts[id]||[]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
+  });
+}
+
+function renderFiles(){
+  const br=document.getElementById('ff-branch')?.value||'';
+  const po=document.getElementById('ff-po')?.value||'';
+  const so=document.getElementById('ff-so')?.value||'';
+  const st=document.getElementById('ff-stage')?.value||'';
+  const qu=document.getElementById('ff-query')?.value||'';
+  const srch=(document.getElementById('ff-search')?.value||'').toLowerCase();
+  const filt=FILES.filter(f=>
+    (!br||f.branch===br)&&(!po||f.po===po)&&(!so||f.so===so)&&
+    (!st||f.stage===st)&&(!qu||f.query===qu)&&
+    (!srch||(f.name.toLowerCase().includes(srch)||f.fileNo.toLowerCase().includes(srch)))
+  );
+  const tbody=document.getElementById('files-tbody');
+  if(tbody)tbody.innerHTML=filt.map((f,i)=>`<tr>
+    <td style="font-size:10px;font-weight:500">${f.fileNo}</td>
+    <td>${f.name}</td><td>${f.branch}</td>
+    <td>${fmtAmt(f.amt)}</td>
+    <td>${f.po||'—'}</td><td>${f.so||'—'}</td>
+    <td>${stageTag(f.stage)}</td>
+    <td>${qTag(f.query)}</td>
+    <td>${tatSpan(f.tat,f.days)}</td>
+    <td><button class="btn" style="font-size:10px;padding:3px 8px" onclick="openModal(${FILES.indexOf(f)})">Edit</button></td>
+  </tr>`).join('')||'<tr><td colspan="10" style="text-align:center;color:var(--color-text-secondary);padding:16px">No files match</td></tr>';
+  const cnt=document.getElementById('files-count');
+  if(cnt)cnt.textContent=`${filt.length} of ${FILES.length} files`;
+}
+
+function renderAdd(){
+  const poOpts=POS.map(p=>`<option>${p}</option>`).join('');
+  const soOpts=SOS.map(s=>`<option>${s}</option>`).join('');
+  const brOpts=BRANCHES.map(b=>`<option>${b}</option>`).join('');
+  document.getElementById('s-add').innerHTML=`
+  <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">Add new file login from branch</p>
+  <div class="add-grid">
+    <div class="fg"><label>File No *</label><input id="a-fileno" placeholder="e.g. DL0110020000099"></div>
+    <div class="fg"><label>Customer Name *</label><input id="a-name" placeholder="Full name"></div>
+    <div class="fg"><label>Loan Amount (₹)</label><input id="a-amt" type="number" placeholder="e.g. 3500000"></div>
+    <div class="fg"><label>Branch *</label><select id="a-branch"><option value="">Select branch</option>${brOpts}<option value="__new__">+ Other</option></select></div>
+    <div class="fg"><label>Date Received</label><input id="a-date" type="date" value="2026-06-20"></div>
+    <div class="fg"><label>PO Name *</label><select id="a-po"><option value="">Select PO</option>${poOpts}</select></div>
+    <div class="fg"><label>SO Name</label><select id="a-so"><option value="">Select SO</option>${soOpts}</select></div>
+    <div class="fg"><label>Current Stage</label><select id="a-stage"><option>HO FS</option><option>HO IPS</option><option>SUD</option><option>Branch 3rd Party</option></select></div>
+    <div class="fg"><label>Query Status</label><select id="a-query"><option>Not Set</option><option>Pending with Branch</option><option>Pending with HO</option><option>Clear</option></select></div>
+  </div>
+  <div style="display:flex;gap:8px"><button class="btn pri" onclick="addFile()">Add file</button><button class="btn" onclick="document.getElementById('s-add').querySelector('p').nextElementSibling.querySelectorAll('input,select').forEach(e=>e.value='')">Clear</button></div>
+  <p id="add-msg" style="font-size:11px;margin-top:8px"></p>`;
+}
+
+function addFile(){
+  const fn=document.getElementById('a-fileno').value.trim();
+  const nm=document.getElementById('a-name').value.trim();
+  const br=document.getElementById('a-branch').value;
+  const po=document.getElementById('a-po').value;
+  if(!fn||!nm||!br||!po){document.getElementById('add-msg').textContent='Fill required fields (*).';document.getElementById('add-msg').style.color='#A32D2D';return;}
+  const dt=document.getElementById('a-date').value||'2026-06-20';
+  const d=new Date(dt);
+  const f={sno:String(FILES.length+1),dateStr:dt,fileNo:fn,name:nm,
+    amt:Number(document.getElementById('a-amt').value)||0,
+    branch:br,stage:document.getElementById('a-stage').value,
+    query:document.getElementById('a-query').value,
+    po:po,so:document.getElementById('a-so').value,date:d,
+    days:daysSince(d),tat:''};
+  f.tat=tatLabel(f.days);
+  FILES.push(f);
+  document.getElementById('add-msg').textContent=`✓ File ${fn} added.`;document.getElementById('add-msg').style.color='#27500A';
+  fileFiltersBuilt=false;
+}
+
+function openModal(idx){
+  editIdx=idx;const f=FILES[idx];
+  document.getElementById('modal-title').textContent=`Update: ${f.name}`;
+  document.getElementById('m-stage').value=f.stage;
+  document.getElementById('m-query').value=f.query;
+  const mpo=document.getElementById('m-po');mpo.innerHTML=POS.map(p=>`<option${p===f.po?' selected':''}>${p}</option>`).join('');
+  const mso=document.getElementById('m-so');mso.innerHTML=['—',...SOS].map(s=>`<option${s===f.so?' selected':''}>${s}</option>`).join('');
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');editIdx=null;}
+function saveModal(){
+  if(editIdx===null)return;
+  FILES[editIdx].stage=normalizeStage(document.getElementById('m-stage').value);
+  FILES[editIdx].query=normalizeQuery(document.getElementById('m-query').value);
+  FILES[editIdx].po=document.getElementById('m-po').value;
+  const sv=document.getElementById('m-so').value;
+  FILES[editIdx].so=sv==='—'?'':sv;
+  closeModal();fileFiltersBuilt=false;
+  const activeTab=document.querySelector('.tab.active');
+  if(activeTab)activeTab.click();
+}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// Build files tab HTML
+document.getElementById('s-files').innerHTML=`
+<div class="frow">
+  <input id="ff-search" placeholder="Search name / file no" style="width:150px" oninput="renderFiles()">
+  <select id="ff-branch" onchange="renderFiles()"><option value="">All branches</option></select>
+  <select id="ff-po" onchange="renderFiles()"><option value="">All POs</option></select>
+  <select id="ff-so" onchange="renderFiles()"><option value="">All SOs</option></select>
+  <select id="ff-stage" onchange="renderFiles()"><option value="">All stages</option></select>
+  <select id="ff-query" onchange="renderFiles()"><option value="">All query status</option></select>
+  <button class="btn" onclick="['ff-branch','ff-po','ff-so','ff-stage','ff-query'].forEach(id=>document.getElementById(id).value='');document.getElementById('ff-search').value='';renderFiles()">Clear</button>
+  <span id="files-count" style="font-size:11px;color:var(--color-text-secondary);margin-left:4px"></span>
+</div>
+<table><thead><tr><th>File No</th><th>Customer</th><th>Branch</th><th>Loan</th><th>PO</th><th>SO</th><th>Stage</th><th>Query Status</th><th>TAT</th><th></th></tr></thead><tbody id="files-tbody"></tbody></table>`;
+
+renderDash();
+</script>
+</body>
+</html>
